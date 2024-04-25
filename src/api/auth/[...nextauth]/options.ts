@@ -14,12 +14,12 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password", },
             },
             async authorize(credentials: any): Promise<any> {
-                dbConnect()
+                await dbConnect()
                 try {
                     const user = await UserModel.findOne({
                         $or: [
-                            { email: credentials?.email },
-                            { username: credentials?.email }
+                            { email: credentials.identifier },
+                            { username: credentials.identifier }
                         ]
                     })
 
@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.id = user._id?.toString()
+                token._id = user._id?.toString()
                 token.isVerified = user.isVerified
                 token.isAcceptingMessages = user.isAcceptingMessages
                 token.username = user.username
@@ -58,7 +58,7 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             if (token) {
-                session.user._id = token.id
+                session.user._id = token._id
                 session.user.isVerified = token.isVerified
                 session.user.isAcceptingMessages = token.isAcceptingMessages
                 session.user.username = token.username
